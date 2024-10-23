@@ -15,14 +15,40 @@ namespace Data
         {
             base.OnModelCreating(modelBuilder); // Call the base method
 
-            modelBuilder.Entity<Role>()
-                .HasData(
-                    new Role { Id = "1", Name = "Student", NormalizedName = "STUDENT" },
-                    new Role { Id = "2", Name = "Instructor", NormalizedName = "INSTRUCTOR" }
-                );
+            List<IdentityRole> roles = new List<IdentityRole>
+            {
+                new IdentityRole
+                {
+                    Name = "Admin",
+                    NormalizedName = "ADMIN"
+                },
+                new IdentityRole {
+                    Name = "Student",
+                    NormalizedName = "STUDENT"
+                },
+                new IdentityRole {
+                    Name = "Instructor",
+                    NormalizedName = "INSTRUCTOR"
+                }
+            };
+
+            modelBuilder.Entity<IdentityRole>().HasData(roles);
+
+            modelBuilder.Entity<Enrollment>().HasKey(e => e.Id);
 
             modelBuilder.Entity<Enrollment>()
-                .HasKey(e => new { e.StudentId, e.CourseId }); // Composite key for Enrollment
+                .HasOne(e => e.Student)
+                .WithMany(s => s.Enrollments)
+                .HasForeignKey(e => e.StudentId)
+                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
+
+
+            modelBuilder.Entity<Enrollment>()
+                .HasOne(e => e.Course)
+                .WithMany(c => c.Enrollments)
+                .HasForeignKey(e => e.CourseId)
+                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
+
         }
     }
 }

@@ -1,5 +1,6 @@
 using backend.Interfaces;
 using backend.Models;
+using backend.Repositories;
 using backend.Services;
 using Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,32 +9,34 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args); // Create a new web application builder
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Add services to the container
+builder.Services.AddEndpointsApiExplorer(); // Enable API endpoint exploration
+builder.Services.AddSwaggerGen(); // Enable Swagger for API documentation
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")); // Configure the database context to use SQL Server
 });
-builder.Services.AddControllers();
-builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddControllers(); // Add support for controllers
+builder.Services.AddScoped<ITokenService, TokenService>(); // Register the token service
+builder.Services.AddScoped<IUserRepository, UserRepository>(); // Register the user repository
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
-    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore; // Configure JSON serialization settings
 });
 
+// Configure Identity for user management
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequiredLength = 8;
-}).AddEntityFrameworkStores<ApplicationDbContext>();
+    options.Password.RequireLowercase = true; 
+    options.Password.RequireUppercase = true; 
+    options.Password.RequireNonAlphanumeric = true; 
+    options.Password.RequiredLength = 8; 
+}).AddEntityFrameworkStores<ApplicationDbContext>(); 
 
+// Configure JWT authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme =
@@ -41,34 +44,34 @@ builder.Services.AddAuthentication(options =>
     options.DefaultForbidScheme =
     options.DefaultScheme =
     options.DefaultSignInScheme =
-
-    options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme; // Set the default authentication scheme to JWT
 }).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidIssuer = builder.Configuration["JWT:Issuer"],
-        ValidAudience = builder.Configuration["JWT:Audience"],
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])),
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
+        ValidateIssuer = true, // Validate the token issuer
+        ValidateAudience = true, // Validate the token audience
+        ValidIssuer = builder.Configuration["JWT:Issuer"], // Get valid issuer from configuration
+        ValidAudience = builder.Configuration["JWT:Audience"], // Get valid audience from configuration
+        ValidateIssuerSigningKey = true, // Validate the signing key
+        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])), // Get signing key from configuration
+        ValidateLifetime = true, // Validate the token lifetime
+        ClockSkew = TimeSpan.Zero // Set clock skew to zero
     };
 });
 
+// Configure Swagger for API documentation with authentication
 builder.Services.AddSwaggerGen(option =>
 {
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" }); // Define API documentation
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        In = ParameterLocation.Header,
-        Description = "Please enter a valid token",
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
+        In = ParameterLocation.Header, 
+        Description = "Please enter a valid token", 
+        Name = "Authorization", 
+        Type = SecuritySchemeType.Http, 
         BearerFormat = "JWT",
-        Scheme = "Bearer"
+        Scheme = "Bearer" 
     });
     option.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -77,8 +80,8 @@ builder.Services.AddSwaggerGen(option =>
             {
                 Reference = new OpenApiReference
                 {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer" // Reference the security scheme
                 }
             },
             new string[]{}
@@ -86,20 +89,19 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
-var app = builder.Build();
+var app = builder.Build(); // Build the application
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwagger(); // Enable Swagger in development
+    app.UseSwaggerUI(); // Enable Swagger UI
 }
 
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseHttpsRedirection(); // Redirect HTTP requests to HTTPS
+app.UseAuthentication(); // Enable authentication middleware
+app.UseAuthorization(); // Enable authorization middleware
 
-app.MapControllers();
+app.MapControllers(); // Map attribute-based routes to controllers
 
-app.Run();
-
+app.Run(); // Run the application
