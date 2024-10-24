@@ -9,6 +9,8 @@ namespace Data
     {
         public DbSet<Course> Courses { get; set; }
         public DbSet<Enrollment> Enrollments { get; set; }
+        public DbSet<Week> Weeks { get; set; }
+        public DbSet<WeekFile> Files { get; set; }
         public ApplicationDbContext(DbContextOptions dbContextOptions) : base(dbContextOptions) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -48,6 +50,16 @@ namespace Data
                 .WithMany(c => c.Enrollments)
                 .HasForeignKey(e => e.CourseId)
                 .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
+
+            modelBuilder.Entity<Course>()
+                .HasMany(c => c.Weeks)
+                .WithOne(w => w.Course)
+                .HasForeignKey(w => w.CourseId);
+
+            modelBuilder.Entity<Week>()
+                .HasMany(w => w.Files)
+                .WithOne(f => f.Week)
+                .HasForeignKey(f => f.WeekId);
 
         }
     }

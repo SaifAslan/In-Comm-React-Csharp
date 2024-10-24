@@ -16,5 +16,7 @@ namespace backend.Models
         public DateTime UpdatedAt { get; set; }
 
         public ICollection<Enrollment> Enrollments { get; set; } // Navigation property for students enrolled  
+        public ICollection<Week> Weeks { get; set; } // Navigation property for weeks in the course
+
     }
 }
