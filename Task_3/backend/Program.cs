@@ -22,8 +22,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddControllers(); // Add support for controllers
 builder.Services.AddScoped<ITokenService, TokenService>(); // Register the token service
 builder.Services.AddScoped<IUserRepository, UserRepository>(); // Register the user repository
-builder.Services.AddScoped<ICourseRepository, CourseRepository>(); // Register the user repository
-builder.Services.AddScoped<IWeekRepository, WeekRepository>(); // Register the user repository
+builder.Services.AddScoped<ICourseRepository, CourseRepository>(); // Register the Course repository
+builder.Services.AddScoped<IWeekRepository, WeekRepository>(); // Register the Week repository
+builder.Services.AddScoped<IWeekFileRepository, WeekFileRepository>(); // Register the File repository
+
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
