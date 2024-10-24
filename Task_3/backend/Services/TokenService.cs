@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using backend.Interfaces;
 using backend.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 namespace backend.Services
@@ -12,10 +13,13 @@ namespace backend.Services
         private readonly IConfiguration _configuration; // Configuration to access app settings
         private readonly SymmetricSecurityKey _symmetricSecurityKey; // Security key for signing tokens
 
-        public TokenService(IConfiguration configuration)
+        private readonly UserManager<AppUser> _userManager; // User manager for managing user roles
+
+        public TokenService(IConfiguration configuration, UserManager<AppUser> userManager)
         {
             _configuration = configuration; // Initialize configuration
             _symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SigningKey"])); // Create security key from signing key
+            _userManager = userManager; // Initialize user manager
         }
 
         // Method to create a JWT token for a user
@@ -26,6 +30,12 @@ namespace backend.Services
                 new Claim(JwtRegisteredClaimNames.Email, user.Email), // Add email claim
                 new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName) // Add first name claim
             };
+            // Add role claims
+            var roles = _userManager.GetRolesAsync(user).Result; // Get the user's roles
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role)); // Add each role as a claim
+            }
 
             var creds = new SigningCredentials(_symmetricSecurityKey, SecurityAlgorithms.HmacSha512Signature); // Create signing credentials
 
