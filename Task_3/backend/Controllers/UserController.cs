@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
 {
+    [Route("api/account")]
+    [ApiController]
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository; // Repository for user operations
