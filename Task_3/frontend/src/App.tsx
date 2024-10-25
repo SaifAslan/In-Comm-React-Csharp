@@ -11,6 +11,8 @@ import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard";
 import Register from "./Pages/Register";
 import AppLayout from "./Components/AppLayout";
+import Courses from "./Pages/Courses/Index";
+import CreateCourse from "./Pages/Courses/CreateCourse";
 const ProtectedRoute = ({
   children,
   requiredRole,
@@ -37,7 +39,15 @@ function App() {
             path="/courses"
             element={
               <ProtectedRoute requiredRole="Instructor">
-                <Dashboard />
+                <Courses />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/create-course"
+            element={
+              <ProtectedRoute requiredRole="Instructor">
+                <CreateCourse />
               </ProtectedRoute>
             }
           />
