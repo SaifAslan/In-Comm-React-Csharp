@@ -11,3 +11,16 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.register-page .ant-segmented-item{
+  width: 100%;
+}
+
+.register-page .ant-form-item{
+  margin-bottom: .6rem;
+
+}
+
+*{
+  line-height: 1;
+}

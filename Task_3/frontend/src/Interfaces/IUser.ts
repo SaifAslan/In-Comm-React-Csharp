@@ -8,6 +8,7 @@ export interface IUser {
     createdAt: Date; 
     updatedAt: Date; 
     roles: IRole[];
+    token: string;
 }
 
 export enum IRole {
