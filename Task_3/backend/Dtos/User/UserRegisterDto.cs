@@ -30,8 +30,5 @@ namespace backend.Dtos.User
         [Required]
         [AllowedValues(["Student", "Instructor"], ErrorMessage = "Please select a valid role")]
         public string Role { get; set; } 
-        [Required]
-        [MinLength(5, ErrorMessage = "Username must be at least 5 characters long")]
-        public string UserName { get; set; }
     }
 }

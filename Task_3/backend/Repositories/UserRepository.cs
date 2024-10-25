@@ -48,7 +48,7 @@ namespace backend.Repositories
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber,
-                UserName = user.UserName,
+                UserName = user.Email,
             };
 
             var createdUser = await _userManager.CreateAsync(appUser, user.Password); // Attempt to create user

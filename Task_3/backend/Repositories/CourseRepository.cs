@@ -49,10 +49,12 @@ namespace backend.Repositories
         public async Task<(List<Course> Courses, int TotalCount)> GetCoursesAsync(int pageNumber, int pageSize)
         {
             var totalCount = await _context.Courses.CountAsync(); // Get total count of courses
-            var courses = await _context.Courses
+            var courses = await _context.Courses.Include(c => c.Instructor)
                                          .Skip((pageNumber - 1) * pageSize) // Skip previous pages
                                          .Take(pageSize) // Take the specified number of courses
                                          .ToListAsync(); // Execute the query and convert to a list
+                                         
+        
 
             return (courses, totalCount); // Return the list of courses and total count
         }

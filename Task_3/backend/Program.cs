@@ -95,6 +95,16 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
+// Configure CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowOrigin",
+        builder => builder.WithOrigins("http://localhost:3000") // Your frontend URL
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
+});
+
+
 var app = builder.Build(); // Build the application
 
 // Configure the HTTP request pipeline.
@@ -104,6 +114,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(); // Enable Swagger UI
 }
 
+app.UseCors("AllowOrigin");
 app.UseHttpsRedirection(); // Redirect HTTP requests to HTTPS
 app.UseAuthentication(); // Enable authentication middleware
 app.UseAuthorization(); // Enable authorization middleware
