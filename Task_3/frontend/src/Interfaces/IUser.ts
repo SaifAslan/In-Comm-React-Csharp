@@ -12,7 +12,7 @@ export interface IUser {
 }
 
 export enum IRole {
-    "Admin",
-    "Instructor",
-    "Student"
+    Admin = "Admin",
+    Instructor = "Instructor",
+    Student = "Student"
 }
