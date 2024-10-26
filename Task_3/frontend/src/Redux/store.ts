@@ -1,25 +1,26 @@
 // src/store/index.ts
 import { configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
+import storage from 'redux-persist/lib/storage';
 import userReducer from './features/user/userSlice';
+import enrollmentReducer from './features/Enrollments/enrollmentsSlice';
 import { PersistConfig } from 'redux-persist/es/types';
 
 const persistConfig: PersistConfig<any> = {
-    key: 'root', // key for the persist store
-    storage, // storage engine
+    key: 'root',
+    storage,
 };
 
-// Create a persisted reducer
-const persistedReducer = persistReducer(persistConfig, userReducer);
+const persistedUserReducer = persistReducer(persistConfig, userReducer);
 
 export const store = configureStore({
     reducer: {
-        user: persistedReducer // Use the persisted reducer
-    }
+        user: persistedUserReducer,
+        enrollment: enrollmentReducer, // Add courses reducer here
+    },
 });
 
-export const persistor = persistStore(store); // Create a persistor
+export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

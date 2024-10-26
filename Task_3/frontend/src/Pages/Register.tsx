@@ -1,5 +1,5 @@
 // src/Register.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -19,10 +19,11 @@ import { IUser } from "../Interfaces/IUser"; // Import your AppUser model
 import { useDispatch } from "react-redux";
 import { login } from "../Redux/features/user/userSlice"; // Adjust import based on your user slice
 import { UserOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Typography } from "antd";
 import { SegmentedOptions, SegmentedValue } from "antd/es/segmented";
 import axios from "axios";
+import { useAppSelector } from "../Redux/hooks";
 
 const { Option } = Select;
 
@@ -31,6 +32,8 @@ const Register: React.FC = () => {
   const dispatch = useDispatch();
   const [role, setRole] = useState<string>("Student"); // Default role
   const { Text } = Typography;
+  const navigate = useNavigate(); // For navigation after login
+  const { isAuthenticated } = useAppSelector((state) => state.user);
 
   const onRoleChange = (e: RadioChangeEvent) => {
     setRole(e.target.value);
@@ -59,6 +62,13 @@ const Register: React.FC = () => {
   const handleRoleChange = (e: SegmentedValue) => {
     setRole(e as string);
   };
+
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/courses");
+    } // Redirect to home if already authenticated
+  }, [isAuthenticated]);
 
   return (
     <div style={{ padding: "20px" }} className="register-page">
