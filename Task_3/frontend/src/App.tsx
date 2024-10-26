@@ -13,6 +13,7 @@ import Register from "./Pages/Register";
 import AppLayout from "./Components/AppLayout";
 import Courses from "./Pages/Courses/Index";
 import CreateCourse from "./Pages/Courses/CreateCourse";
+import Users from "./Pages/Users/Index";
 const ProtectedRoute = ({
   children,
   requiredRole,
@@ -48,6 +49,14 @@ function App() {
             element={
               <ProtectedRoute requiredRole="Instructor">
                 <CreateCourse />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute requiredRole="Instructor">
+                <Users />
               </ProtectedRoute>
             }
           />

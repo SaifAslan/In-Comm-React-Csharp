@@ -1,6 +1,6 @@
 import React from "react";
 import { Layout, Menu, theme, Button } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import { UserOutlined, TeamOutlined } from "@ant-design/icons"; // Import TeamOutlined for users
 import { useNavigate } from "react-router-dom"; // Updated import
 import { useAppDispatch } from "../Redux/hooks";
 import { logout } from "../Redux/features/user/userSlice";
@@ -25,9 +25,10 @@ const AppLayout: React.FC<{ children: JSX.Element }> = ({ children }) => {
 
   const dispatch = useAppDispatch(); // Use the useAppDispatch hook to dispatch actions
 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  
   const handleLogout = () => {
-    dispatch(logout()); //removes the user from the Redux store to logs them out
+    dispatch(logout()); // Removes the user from the Redux store to log them out
   };
 
   return (
@@ -42,7 +43,14 @@ const AppLayout: React.FC<{ children: JSX.Element }> = ({ children }) => {
           >
             Courses
           </Menu.Item>
-          <Menu.Item key="2">
+          <Menu.Item
+            key="2"
+            icon={<TeamOutlined />}
+            onClick={() => navigate("/users")} // Navigate to users page
+          >
+            Users
+          </Menu.Item>
+          <Menu.Item key="3">
             <Button
               type="primary"
               onClick={handleLogout}
