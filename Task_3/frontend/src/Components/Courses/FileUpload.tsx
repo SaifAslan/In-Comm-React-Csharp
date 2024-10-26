@@ -1,5 +1,5 @@
-import { Upload, Button, message } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { Upload, Button, message, Row, Col } from "antd";
+import { FileOutlined, UploadOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import axios from "axios";
 import { IUser } from "../../Interfaces/IUser";
@@ -12,39 +12,44 @@ interface FileUploadProps {
 
 const FileUpload: React.FC<FileUploadProps> = ({ weekId, user }) => {
   const [file, setFile] = useState<File | null>(null); // State to manage the selected file
-  const [weekFiles, setWeekFiles] = useState<IweekFile | []>([]); // State to manage the uploaded files
+  const [fileList, setFileList] = useState<any[]>([]); // State to manage the file list for upload
+  const [weekFiles, setWeekFiles] = useState<IweekFile[] | []>([]); // State to manage the uploaded files
   const handleChange = (info: any) => {
     if (info.fileList.length > 0) {
       const selectedFile = info.fileList[0].originFileObj as File; // Get the selected file
-      setFile(selectedFile); // Set the file for upload
+      setFileList(info.fileList); // Set the file for upload
     }
   };
 
+  const handleOnRemove = (e: any) => {
+    setFileList([]);
+  };
+
   const handleUpload = async () => {
-    if (!file) {
+    if (!fileList[0].originFileObj) {
       message.error("No file selected.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", fileList[0].originFileObj as File);
 
-    try {
-      await axios.get(
-        `http://localhost:5197/api/week/${weekId}/files`, // Adjust the endpoint as needed
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${user?.token}`,
-          },
-        }
-      );
-      setFile(null); // Clear the selected file after successful upload
-      fetchWeekFiles();
-    } catch (error) {
-      message.error("File upload failed.");
-      console.error(error);
-    }
+    await axios
+      .post(`http://localhost:5197/api/week/${weekId}/files/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${user?.token}`,
+        },
+      })
+      .then((response) => {
+        setFileList([]);// Clear the selected file after successful upload
+        message.success("File upload successfull.");
+        setTimeout(fetchWeekFiles, 2000);
+      })
+      .catch((error) => {
+        message.error("File upload failed.");
+        console.error(error);
+      });
   };
 
   const fetchWeekFiles = () => {
@@ -60,37 +65,70 @@ const FileUpload: React.FC<FileUploadProps> = ({ weekId, user }) => {
       .then((response) => {
         setWeekFiles(response.data); // Update the state with the fetched files
       })
-      .then((error ) => {
+      .catch((error) => {
         message.error("Failed to fetch week files.");
         console.error(error);
       });
     // Process the response to display the uploaded files
   };
+  console.log(weekFiles);
+  
 
   return (
     <div>
       <Upload
         beforeUpload={() => false} // Prevent automatic upload
         onChange={handleChange}
-        showUploadList={false} // Hide the default upload list
+        listType="picture"
+        showUploadList={true} // Hide the default upload list
+        maxCount={1}
+        onRemove={handleOnRemove}
+        fileList={fileList}
       >
         <Button icon={<UploadOutlined />}>Select File</Button>
       </Upload>
-      {file && (
-        <div style={{ marginTop: "10px" }}>
-          <span>{file.name}</span> {/* Display only the file name */}
-        </div>
-      )}
+
       <Button
         type="primary"
         onClick={handleUpload}
-        disabled={!file} // Disable button if no file is selected
+        disabled={fileList.length>0 && false} // Disable button if no file is selected
         style={{ marginTop: "10px" }}
       >
         Upload File
       </Button>
+      <Row gutter={16} style={{ marginTop: "20px" }}>
+        {weekFiles.map((uploadedFile, index) => (
+          <Col
+            span={8}
+            key={index}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "10px",
+            }}
+          >
+            {uploadedFile.url.includes(".png") || uploadedFile.url.includes(".jpg") || uploadedFile.url.includes(".jpeg")? (
+              // Display image preview if it's an image
+              <img
+                src={uploadedFile.url}
+                alt={uploadedFile.fileName}
+                style={{ width: 50, height: 50, marginRight: 10 }} // Adjust size as needed
+              />
+            ) : (
+              // Display file icon and name for other file types
+              <FileOutlined style={{ fontSize: 24, marginRight: 5 }} />
+            )}
+            <span>{uploadedFile.fileName}</span>
+          </Col>
+        ))}
+      </Row>
     </div>
   );
 };
 
 export default FileUpload;
+// {file && (
+//    <div style={{ marginTop: "10px" }}>
+//     <span>{file.name}</span> {/* Display only the file name */}
+//     </div>
+//   )}

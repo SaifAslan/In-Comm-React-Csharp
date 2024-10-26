@@ -3,7 +3,6 @@ import TextArea from "antd/es/input/TextArea";
 import axios from "axios";
 import React, { useState } from "react";
 import { ICourse } from "../../Interfaces/ICourse"; // Import the interface
-import { IWeek } from "../../Interfaces/IWeek"; // Import the interface
 import { useAppSelector } from "../../Redux/hooks";
 import AddWeekForm from "../../Components/Courses/AddWeekForm"; // Import the new week form component
 
@@ -11,9 +10,9 @@ const CreateCourse: React.FC = () => {
   const [form] = Form.useForm();
   const [courseDetails, setCourseDetails] = useState<ICourse | null>(null);
   const { user } = useAppSelector((state) => state.user);
-  const [weeks, setWeeks] = useState<IWeek[]>([]); // State to manage weeks
+  const [weeks, setWeeks] = useState<number[]>([1]); // State to manage weeks
 
-  const onFinishCourse = (values: { title: string; desciption: string }) => {
+  const onFinishCourse = (values: { title: string; description: string }) => {
     axios
       .post(
         "http://localhost:5197/api/course",
@@ -28,6 +27,10 @@ const CreateCourse: React.FC = () => {
         message.error("An unexpected error occurred.");
         console.log({ e });
       });
+  };
+
+  const addAnotherWeek = () => {
+    setWeeks([...weeks, weeks.length + 1]); // Add a new week entry
   };
 
   return (
@@ -46,7 +49,7 @@ const CreateCourse: React.FC = () => {
           </Form.Item>
           <Form.Item>
             <Button
-              disabled={courseDetails !== null ? true : false}
+              disabled={courseDetails !== null}
               htmlType="submit"
               type="primary"
             >
@@ -56,9 +59,16 @@ const CreateCourse: React.FC = () => {
         </Form>
 
         {courseDetails && (
-          <Card title="Add Week" style={{ marginTop: "20px" }}>
-            <AddWeekForm courseDetails={courseDetails} />
-          </Card>
+          <>
+            <Card title="Add Weeks" style={{ marginTop: "20px" }}>
+              {weeks.map((week, index) => (
+                <AddWeekForm key={index} weekNum={index} courseDetails={courseDetails} />
+              ))}
+            </Card>
+            <Button type="dashed" onClick={addAnotherWeek} style={{ marginTop: "10px" }}>
+              Create Another Week
+            </Button>
+          </>
         )}
       </Card>
     </div>

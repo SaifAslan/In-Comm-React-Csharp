@@ -1,4 +1,4 @@
-import { Form, Input, Button, message } from "antd";
+import { Form, Input, Button, message, Card } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import React, { useState } from "react";
 import { IWeek } from "../../Interfaces/IWeek";
@@ -8,15 +8,16 @@ import { ICourse } from "../../Interfaces/ICourse";
 import axios from "axios";
 
 interface AddWeekFormProps {
-  courseDetails : ICourse | null;
+  courseDetails: ICourse | null;
+  weekNum:number;
 }
 
-const AddWeekForm: React.FC<AddWeekFormProps> = ({courseDetails  }) => {
+const AddWeekForm: React.FC<AddWeekFormProps> = ({ courseDetails, weekNum }) => {
   const [form] = Form.useForm();
   const [week, setWeek] = useState<IWeek | null>(null);
-  const {user} = useAppSelector(state=> state.user);
- 
-   const onFinishWeek = async (values: {
+  const { user } = useAppSelector((state) => state.user);
+
+  const onFinishWeek = async (values: {
     title: string;
     description: string;
   }) => {
@@ -37,21 +38,25 @@ const AddWeekForm: React.FC<AddWeekFormProps> = ({courseDetails  }) => {
   };
 
   return (
-    <Form layout={"horizontal"} form={form} onFinish={onFinishWeek}>
-      <Form.Item label="Title" required name="title">
-        <Input placeholder="Enter week title" />
-      </Form.Item>
-      <Form.Item label="Description" required name="description">
-        <TextArea
-          placeholder="Enter week description"
-          autoSize={{ minRows: 3, maxRows: 5 }}
-        />
-      </Form.Item>
-      <Form.Item>
-        <Button htmlType="submit" type="primary">Create Week</Button>
-      </Form.Item>
-     {week && <FileUpload weekId={week?.id} user={user} />}
-    </Form>
+    <Card title={"Week "+ (weekNum+1)} style={{marginBottom: "1rem"}}>
+      <Form layout={"horizontal"} form={form} onFinish={onFinishWeek}>
+        <Form.Item label="Title" required name="title">
+          <Input placeholder="Enter week title" />
+        </Form.Item>
+        <Form.Item label="Description" required name="description">
+          <TextArea
+            placeholder="Enter week description"
+            autoSize={{ minRows: 3, maxRows: 5 }}
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button htmlType="submit" type="primary">
+            Create Week
+          </Button>
+        </Form.Item>
+        {week && <FileUpload weekId={week?.id} user={user} />}
+      </Form>
+    </Card>
   );
 };
 
