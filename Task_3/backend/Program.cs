@@ -25,6 +25,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>(); // Register the u
 builder.Services.AddScoped<ICourseRepository, CourseRepository>(); // Register the Course repository
 builder.Services.AddScoped<IWeekRepository, WeekRepository>(); // Register the Week repository
 builder.Services.AddScoped<IWeekFileRepository, WeekFileRepository>(); // Register the File repository
+builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+
 
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>

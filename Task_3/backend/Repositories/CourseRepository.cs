@@ -43,7 +43,7 @@ namespace backend.Repositories
         // Optionally, you can add methods to get courses, delete, etc.
         public async Task<Course?> GetCourseByIdAsync(int courseId)
         {
-            return await _context.Courses.Include(c => c.Weeks) // Include related weeks if necessary
+            return await _context.Courses.Include(c => c.Weeks).ThenInclude(w => w.Files).Include(c => c.Instructor) // Include related weeks if necessary
                                           .FirstOrDefaultAsync(c => c.Id == courseId);
         }
         public async Task<(List<Course> Courses, int TotalCount)> GetCoursesAsync(int pageNumber, int pageSize)
@@ -53,8 +53,8 @@ namespace backend.Repositories
                                          .Skip((pageNumber - 1) * pageSize) // Skip previous pages
                                          .Take(pageSize) // Take the specified number of courses
                                          .ToListAsync(); // Execute the query and convert to a list
-                                         
-        
+
+
 
             return (courses, totalCount); // Return the list of courses and total count
         }
