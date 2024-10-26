@@ -34,10 +34,10 @@ function Courses() {
 
   return (
     <div className="courses-page">
-      <Button type="primary" onClick={() => navigate("/create-course")}>
+      <Button className="create-button" type="primary" onClick={() => navigate("/create-course")}>
         Create Course
       </Button>
-      <Row>
+      <Row gutter={[16,16]}>
         {courses.map((course, index) => (
           <Col xs={24} sm={12} md={8} key={index}>
             <Card
