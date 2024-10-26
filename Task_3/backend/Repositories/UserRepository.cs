@@ -8,6 +8,7 @@ using backend.Interfaces;
 using backend.Mappers;
 using backend.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repositories
 {
@@ -100,5 +101,27 @@ namespace backend.Repositories
 
             return LoginResult.Success(user); // Return success with user info
         }
+        public async Task<(List<AppUser> Users, int TotalCount)> GetUsersAsync(string role, int pageNumber, int pageSize)
+        {
+            // Fetch all users from the database
+            var users = await _userManager.Users.ToListAsync();
+
+            // Filter by role if provided
+            if (!string.IsNullOrEmpty(role))
+            {
+                users = users.Where(user => _userManager.IsInRoleAsync(user, role).Result).ToList(); // Check if user is in the specified role
+            }
+
+            // Get total count after filtering
+            int totalCount = users.Count;
+
+            // Apply pagination
+            var pagedUsers = users.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+            return (pagedUsers, totalCount); // Return both the filtered users and total count
+        }
+
+
     }
+
 }

@@ -16,5 +16,7 @@ namespace backend.Interfaces
         Task<bool> UpdateUserAsync(AppUser user);
         Task<bool> DeleteUserAsync(string userId);
         Task<LoginResult> UserLoginAsync(UserLoginDto userLoginDto); 
+        Task<(List<AppUser> Users, int TotalCount)> GetUsersAsync(string role, int pageNumber, int pageSize);
+
     }
 }

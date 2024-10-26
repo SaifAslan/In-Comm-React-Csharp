@@ -1,10 +1,10 @@
-using backend.Dtos.User; 
+using backend.Dtos.User;
 using backend.Interfaces;
-using backend.Mappers; 
-using backend.Models; 
-using Microsoft.AspNetCore.Authorization; 
+using backend.Mappers;
+using backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc; 
+using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
 {
@@ -21,9 +21,9 @@ namespace backend.Controllers
         public UserController(IUserRepository userRepository, SignInManager<AppUser> signInManager, ITokenService tokenService, UserManager<AppUser> userManager)
         {
             _userRepository = userRepository;
-            _signInManager = signInManager; 
+            _signInManager = signInManager;
             _tokenService = tokenService;
-            _userManager = userManager; 
+            _userManager = userManager;
         }
 
         // Endpoint for user registration
@@ -75,6 +75,34 @@ namespace backend.Controllers
         {
             await _signInManager.SignOutAsync(); // Sign out the user
             return Ok(); // Return success response
+        }
+
+        [HttpGet("users")]
+        [Authorize(Roles = "Admin,Instructor")] // Restrict access to Admins and Instructors
+        public async Task<IActionResult> GetUsers(string role = null, int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                var (users, totalCount) = await _userRepository.GetUsersAsync(role, pageNumber, pageSize); // Call repository method
+
+                return Ok(new
+                {
+                    TotalCount = totalCount,
+                    Users = users.Select(u => new
+                    {
+                        u.Id,
+                        u.Email,
+                        u.FirstName,
+                        u.LastName,
+                        u.UserName,
+                        Roles = _userManager.GetRolesAsync(u).Result // Get user roles
+                    })
+                }); // Return users and total count in response
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message); // Return server error message in case of exceptions
+            }
         }
     }
 }
