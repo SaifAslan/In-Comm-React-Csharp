@@ -1,19 +1,20 @@
-// src/Login.tsx
+// Importing React and related libraries
 import React, { useEffect } from "react";
-import { Form, Input, Button, message, Card, Row, Col } from "antd";
-import { useDispatch } from "react-redux";
-import { login } from "../Redux/features/user/userSlice"; // Adjust import based on your user slice
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate for navigation
-import axios from "axios"; // Import axios
-import { useAppSelector } from "../Redux/hooks";
+import { Form, Input, Button, message, Card, Row, Col } from "antd"; // Ant Design components
+import { useDispatch } from "react-redux"; // Redux dispatch hook
+import { Link, useNavigate } from "react-router-dom"; // React Router for navigation
+import axios from "axios"; // Axios for making HTTP requests
+import { useAppSelector } from "../Redux/hooks"; // Custom hook for accessing Redux state
+
+// Redux imports
+import { login } from "../Redux/features/user/userSlice"; // Import login action from user slice
 
 const Login: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate(); // For navigation after login
-  const { isAuthenticated } = useAppSelector((state) => state.user);
+  const { isAuthenticated } = useAppSelector((state) => state.user); // Select authentication state
 
   const onFinish = async (values: { email: string; password: string }) => {
-
     try {
       // Perform API call for login using axios
       const response = await axios.post(
@@ -40,8 +41,8 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/courses");
-    } // Redirect to home if already authenticated
+      navigate("/courses"); // Redirect to home if already authenticated
+    }
   }, [isAuthenticated]);
 
   return (
@@ -53,7 +54,7 @@ const Login: React.FC = () => {
               <Form.Item
                 label="Email"
                 name="email"
-                rules={[
+                rules={[ // Validation rules for email field
                   {
                     required: true,
                     type: "email",
@@ -67,7 +68,7 @@ const Login: React.FC = () => {
               <Form.Item
                 label="Password"
                 name="password"
-                rules={[
+                rules={[ // Validation rules for password field
                   {
                     required: true,
                     message: "Please input your password!",

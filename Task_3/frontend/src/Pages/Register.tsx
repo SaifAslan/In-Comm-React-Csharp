@@ -1,11 +1,8 @@
-// src/Register.tsx
 import React, { useEffect, useState } from "react";
 import {
   Form,
   Input,
   Button,
-  Select,
-  Radio,
   message,
   RadioChangeEvent,
   Card,
@@ -18,14 +15,12 @@ import {
 import { IUser } from "../Interfaces/IUser"; // Import your AppUser model
 import { useDispatch } from "react-redux";
 import { login } from "../Redux/features/user/userSlice"; // Adjust import based on your user slice
-import { UserOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { Typography } from "antd";
-import { SegmentedOptions, SegmentedValue } from "antd/es/segmented";
+import {  SegmentedValue } from "antd/es/segmented";
 import axios from "axios";
 import { useAppSelector } from "../Redux/hooks";
 
-const { Option } = Select;
 
 const Register: React.FC = () => {
   const [form] = Form.useForm();

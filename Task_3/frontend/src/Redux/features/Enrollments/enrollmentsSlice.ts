@@ -1,4 +1,3 @@
-// src/Redux/features/courses/coursesSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ICourse } from '../../../Interfaces/ICourse';
 

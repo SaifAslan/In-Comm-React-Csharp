@@ -1,9 +1,17 @@
-import { Upload, Button, message, Row, Col } from "antd";
-import { FileOutlined, UploadOutlined } from "@ant-design/icons";
-import React, { useState } from "react";
-import axios from "axios";
-import { IUser } from "../../Interfaces/IUser";
-import { IweekFile } from "../../Interfaces/IWeekFile";
+// Importing Ant Design components and icons
+import { Upload, Button, message, Row, Col } from "antd"; 
+import { FileOutlined, UploadOutlined } from "@ant-design/icons"; 
+
+// Importing React and hooks
+import React, { useState } from "react"; 
+
+// Importing Axios for making API requests
+import axios from "axios"; 
+
+// Importing interfaces
+import { IUser } from "../../Interfaces/IUser"; 
+import { IweekFile } from "../../Interfaces/IWeekFile"; 
+
 
 interface FileUploadProps {
   weekId: number; // Assume weekId is a number
@@ -11,7 +19,6 @@ interface FileUploadProps {
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({ weekId, user }) => {
-  const [file, setFile] = useState<File | null>(null); // State to manage the selected file
   const [fileList, setFileList] = useState<any[]>([]); // State to manage the file list for upload
   const [weekFiles, setWeekFiles] = useState<IweekFile[] | []>([]); // State to manage the uploaded files
   const handleChange = (info: any) => {
@@ -69,9 +76,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ weekId, user }) => {
         message.error("Failed to fetch week files.");
         console.error(error);
       });
-    // Process the response to display the uploaded files
   };
-  console.log(weekFiles);
   
 
   return (
