@@ -1,46 +1,70 @@
-# Getting Started with Create React App
+# Course Management System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The Course Management System is a web application designed to facilitate online learning by providing a platform where instructors can create and manage courses, and students can enroll and access course materials. This project aims to streamline the educational experience by enabling efficient user management, course management, and providing role-based access to functionalities.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **User Registration and Login**: 
+  - Users can register and log in as either students or instructors.
+  - Secure authentication ensures user data is protected.
 
-### `npm start`
+- **Role-Based Access Control**:
+  - Students can enroll in courses and view course materials.
+  - Instructors can create, update, and manage their courses.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- **Course Management**:
+  - Instructors can create and manage courses, including adding weeks and associated materials (files).
+  - Students can view course details, including descriptions, weeks, and files.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- **Enrollment Management**:
+  - System tracks student enrollments in courses.
+  - Users can view their enrolled courses.
 
-### `npm test`
+- **Responsive Design**: 
+  - The application is optimized for various devices, ensuring accessibility on desktops, tablets, and mobile devices.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Technologies Used
 
-### `npm run build`
+- **React**: A JavaScript library for building user interfaces.
+- **Redux**: A predictable state container for JavaScript apps.
+- **Ant Design**: A design system with a set of high-quality React components.
+- **Axios**: A promise-based HTTP client for the browser and Node.js.
+- **Redux Persist**: A library to help with persisting the Redux store.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Getting Started
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Prerequisites
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Make sure you have the following installed:
 
-### `npm run eject`
+- [Node.js](https://nodejs.org/) (version 14 or above)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/) (package manager)
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Installation
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. Clone the repository:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+   git clone https://github.com/yourusername/your-repo-name.git
+   cd your-repo-name
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+2. Install dependencies:
 
-## Learn More
+   Using npm:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+   npm install
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+   Or using yarn:
+
+   yarn install
+
+### Running the Project
+
+To start the development server:
+
+npm start
+
+Or:
+
+yarn start
+
+This will start the app in development mode. Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
