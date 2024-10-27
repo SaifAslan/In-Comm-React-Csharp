@@ -58,10 +58,12 @@ namespace backend.Repositories
         {
             return await _context.Enrollments
                 .Where(e => e.StudentId == studentId)
-                .Select(e => e.Course).Include(c => c.Instructor)
+                .Include(e => e.Course) // Include the Course entity first
+                .ThenInclude(c => c.Instructor) // Then include the Instructor for the Course
+                .Select(e => e.Course) // Project to Course entity
                 .ToListAsync();
         }
 
-        
+
     }
 }
