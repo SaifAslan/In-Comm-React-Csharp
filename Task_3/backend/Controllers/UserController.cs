@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using backend.Dtos.User;
 using backend.Interfaces;
 using backend.Mappers;
@@ -49,60 +50,98 @@ namespace backend.Controllers
             }
         }
 
-        // Endpoint for user login
+
         [HttpPost("login")]
-        public async Task<IActionResult> Login(UserLoginDto userLoginDto)
+        public async Task<IActionResult> Login([FromBody] UserLoginDto userLoginDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState); // Return bad request if model state is invalid
-
-            var loginResult = await _userRepository.UserLoginAsync(userLoginDto); // Attempt to login user
-
-            if (loginResult.IsSuccess)
+            var loginResult = await _userRepository.UserLoginAsync(userLoginDto);
+            if (!loginResult.IsSuccess)
             {
-                var roles = await _userManager.GetRolesAsync(loginResult.User); // Get roles for the logged-in user
-                string token = _tokenService.CreateToken(loginResult.User); // Create JWT token for the user
-                return Ok(loginResult.User.ToLoginResultDto(token, roles)); // Return success response with user info and token
+                return StatusCode(loginResult.StatusCode, loginResult.ErrorMessage);
             }
 
-            if (loginResult.StatusCode == 401) return Unauthorized(loginResult.ErrorMessage); // Return unauthorized if credentials are invalid
-            return NotFound(loginResult.ErrorMessage); // Return not found if user not found
-        }
-
-        // Endpoint for user logout
-        [HttpPost("logout")]
-        [Authorize] // Require authorization for this endpoint
-        public async Task<IActionResult> Logout()
-        {
-            await _signInManager.SignOutAsync(); // Sign out the user
-            return Ok(); // Return success response
+            var user = loginResult.User;
+            var roles = await _userManager.GetRolesAsync(user);
+            string token = _tokenService.CreateToken(user);
+            return Ok(user.ToLoginResultDto(token, roles));
         }
 
         [HttpGet("users")]
-        [Authorize(Roles = "Admin,Instructor")] // Restrict access to Admins and Instructors
-        public async Task<IActionResult> GetUsers(string role = null, int pageNumber = 1, int pageSize = 10)
+        [Authorize(Roles = "Admin, Instructor")] // Assuming only admins can access this endpoint
+        public async Task<IActionResult> GetUsers([FromQuery] string role, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            try
+            var (users, totalCount) = await _userRepository.GetUsersAsync(role, pageNumber, pageSize);
+            var userDtos = users.Select(user => new NewUserDto
             {
-                var (users, totalCount) = await _userRepository.GetUsersAsync(role, pageNumber, pageSize); // Call repository method
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                DateOfBirth = user.DateOfBirth,
+                UpdatedAt = user.UpdatedAt
+            }).ToList();
 
-                return Ok(new
-                {
-                    TotalCount = totalCount,
-                    Users = users.Select(u => new
-                    {
-                        u.Id,
-                        u.Email,
-                        u.FirstName,
-                        u.LastName,
-                        u.UserName,
-                        Roles = _userManager.GetRolesAsync(u).Result // Get user roles
-                    })
-                }); // Return users and total count in response
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message); // Return server error message in case of exceptions
-            }
+            return Ok(new { Users = userDtos, TotalCount = totalCount });
         }
+
+        // Endpoint for getting user profile (accessible to Student, Instructor, Admin)
+        [HttpGet("profile")]
+        [Authorize]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get current user ID from claims
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null) return NotFound("User not found." + userId);
+
+            var roles = await _userManager.GetRolesAsync(user);
+            return Ok(user.ToLoginResultDto("", roles)); // Return user profile (without token)
+        }
+
+        // Endpoint for updating user profile (accessible to Student, Instructor, Admin)
+        [HttpPut("profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile([FromBody] UserUpdateDto userUpdateDto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null) return NotFound("User not found.");
+
+            // Update user properties
+            user.FirstName = userUpdateDto.FirstName ?? user.FirstName;
+            user.LastName = userUpdateDto.LastName ?? user.LastName;
+            user.DateOfBirth = userUpdateDto.DateOfBirth != default ? userUpdateDto.DateOfBirth : user.DateOfBirth;
+
+            var success = await _userRepository.UpdateUserAsync(user);
+            if (!success) return StatusCode(500, "Failed to update profile.");
+
+            return Ok("Profile updated successfully.");
+        }
+
+        // Endpoint for changing user password (accessible to Student, Instructor, Admin)
+        [HttpPost("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null) return NotFound("User not found.");
+
+            var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
+            if (!result.Succeeded) return BadRequest(result.Errors);
+
+            return Ok("Password changed successfully.");
+        }
+
+        // Endpoint for deleting a user (accessible only to Admin)
+        [HttpDelete("{userId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUser(string userId)
+        {
+            var success = await _userRepository.DeleteUserAsync(userId);
+            if (!success) return NotFound("User not found.");
+
+            return Ok("User deleted successfully.");
+        }
+
     }
 }

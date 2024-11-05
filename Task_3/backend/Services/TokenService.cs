@@ -28,7 +28,9 @@ namespace backend.Services
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Email, user.Email), // Add email claim
-                new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName) // Add first name claim
+                new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName), // Add first name claim
+                new Claim(ClaimTypes.NameIdentifier, user.Id) // Add user ID claim using NameIdentifier
+
             };
             // Add role claims
             var roles = _userManager.GetRolesAsync(user).Result; // Get the user's roles
