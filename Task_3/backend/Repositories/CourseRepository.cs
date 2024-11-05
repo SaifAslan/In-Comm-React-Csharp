@@ -34,10 +34,17 @@ namespace backend.Repositories
         }
 
         // Method to update an existing course
-        public async Task<bool> UpdateCourseAsync(Course course)
+        public async Task<bool> UpdateCourseAsync(int courseId, UpdateCourseDto updateCourseDto)
         {
-            _context.Courses.Update(course); // Update the course entity
-            return await _context.SaveChangesAsync() > 0; // Save changes and return success status
+            var course = await _context.Courses.FindAsync(courseId);
+            if (course == null) return false;
+
+            // Update only the properties provided in the DTO
+            course.Title = updateCourseDto.Title;
+            course.Description = updateCourseDto.Description;
+
+            _context.Courses.Update(course);
+            return await _context.SaveChangesAsync() > 0;
         }
 
         // Optionally, you can add methods to get courses, delete, etc.
@@ -62,6 +69,11 @@ namespace backend.Repositories
         public async Task<bool> CourseExistsAsync(int courseId)
         {
             return await _context.Courses.AnyAsync(c => c.Id == courseId); // Check if any course matches the given ID
+        }
+        public async Task<bool> DeleteCourseAsync(Course course)
+        {
+            _context.Courses.Remove(course);
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

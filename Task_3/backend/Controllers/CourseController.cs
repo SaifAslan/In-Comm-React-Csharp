@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using backend.Dtos.Course;
 using backend.Interfaces;
@@ -30,24 +31,6 @@ namespace backend.Controllers
             return CreatedAtAction(nameof(GetCourseById), new { id = createdCourse.Id }, createdCourse); // Return created response with the course data
         }
 
-        // PUT: api/courses/{id}
-        [HttpPut("{id}")]
-        [Authorize(Roles = "Admin,Instructor")] // Restrict access to Admins and Instructors
-        public async Task<IActionResult> UpdateCourse(int id, [FromBody] Course course)
-        {
-            if (id != course.Id)
-            {
-                return BadRequest("Course ID mismatch."); // Return bad request if ID does not match
-            }
-
-            var updated = await _courseRepository.UpdateCourseAsync(course); // Update the course
-            if (!updated)
-            {
-                return NotFound("Course not found."); // Return not found if update fails
-            }
-
-            return NoContent(); // Return no content on successful update
-        }
         // GET: api/courses/{id}
         [HttpGet("{id}")]
         [Authorize]
@@ -79,6 +62,59 @@ namespace backend.Controllers
                 Courses = courses // Return the list of courses
             });
         }
+
+        // PUT: api/courses/{id} (Update the existing Put method)
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Instructor")]
+        public async Task<IActionResult> UpdateCourse(int id, [FromBody] UpdateCourseDto updateCourseDto)
+        {
+            var existingCourse = await _courseRepository.GetCourseByIdAsync(id);
+            if (existingCourse == null)
+            {
+                return NotFound("Course not found.");
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (User.IsInRole("Admin") || existingCourse.InstructorId == userId)
+            {
+                var updated = await _courseRepository.UpdateCourseAsync(id, updateCourseDto);
+                if (!updated)
+                {
+                    return StatusCode(500, "Failed to update the course.");
+                }
+                return NoContent();
+            }
+
+            return Forbid();
+        }
+        
+        // DELETE: api/courses/{id}
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Instructor")]
+        public async Task<IActionResult> DeleteCourse(int id)
+        {
+            var course = await _courseRepository.GetCourseByIdAsync(id);
+            if (course == null)
+            {
+                return NotFound("Course not found.");
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (User.IsInRole("Admin") || course.InstructorId == userId)
+            {
+                var deleted = await _courseRepository.DeleteCourseAsync(course);
+                if (!deleted)
+                {
+                    return StatusCode(500, "Failed to delete the course.");
+                }
+                return NoContent();
+            }
+
+            return Forbid();
+        }
+
 
     }
 }
