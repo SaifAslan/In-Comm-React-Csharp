@@ -12,5 +12,7 @@ namespace backend.Interfaces
         Task<Week> createWeekAsync(CreateWeekDto createWeekDto, int courseId); // Method to create a week
         Task<List<Week>> getCourseWeeksAsync(int courseId);
         Task<bool> deleteWeek(int weekId);// Method to get all weeks
+        Task<bool> BulkDeleteWeeks(List<int> weekIds); // Add Bulk Delete method
+        Task<Week> UpdateWeekAsync(int weekId, UpdateWeekDto updateWeekDto); // Add Update method
     }
 }

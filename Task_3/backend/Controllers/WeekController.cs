@@ -47,5 +47,30 @@ namespace backend.Controllers
 
             return NoContent(); // Return no content on successful deletion
         }
+
+        [HttpPut("{weekId}")]
+        [Authorize(Roles = "Admin,Instructor")]
+        public async Task<IActionResult> UpdateWeek(int courseId, int weekId, [FromBody] UpdateWeekDto updateWeekDto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var updatedWeek = await _weekRepository.UpdateWeekAsync(weekId, updateWeekDto);
+            if (updatedWeek == null) return NotFound("Week not found.");
+
+            return Ok(updatedWeek);
+        }
+
+        // DELETE api/course/{courseId}/week/bulk-delete
+        [HttpDelete("bulk-delete")]
+        [Authorize(Roles = "Admin,Instructor")]
+        public async Task<IActionResult> BulkDeleteWeeks(int courseId, [FromBody] List<int> weekIds)
+        {
+            if (weekIds == null || weekIds.Count == 0) return BadRequest("No week IDs provided.");
+
+            var deleted = await _weekRepository.BulkDeleteWeeks(weekIds);
+            if (!deleted) return NotFound("No weeks found to delete.");
+
+            return NoContent();
+        }
     }
 }

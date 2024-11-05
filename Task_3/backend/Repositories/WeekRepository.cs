@@ -53,5 +53,31 @@ namespace backend.Repositories
 
             return await _context.Weeks.Where(w => w.CourseId == courseId).ToListAsync(); // Get weeks for the specific course     
         }
+
+        public async Task<bool> BulkDeleteWeeks(List<int> weekIds)
+        {
+            var weeksToDelete = await _context.Weeks
+                .Where(w => weekIds.Contains(w.Id))
+                .ToListAsync();
+
+            if (weeksToDelete.Count == 0) return false;
+
+            _context.Weeks.RemoveRange(weeksToDelete);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<Week> UpdateWeekAsync(int weekId, UpdateWeekDto updateWeekDto)
+        {
+            var week = await _context.Weeks.FindAsync(weekId);
+
+            if (week == null) return null;
+
+            week.Title = updateWeekDto.Title ?? week.Title;
+            week.Description = updateWeekDto.Description ?? week.Description;
+            week.UpdatedAt = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            return week;
+        }
     }
 }
